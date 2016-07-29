@@ -8,6 +8,12 @@ var port = process.env.PORT || 1337;
 
 var orders = {};
 var restaurant = null;
+var menu_map = {
+    'drupatis': 'http://www.drupatis.com/menu.html',
+    'tabule': 'https://yonge.tabule.ca/',
+    'kfc': 'http://www.kfc.ca/full-menu',
+    "mamaspizza": 'http://mammaspizza.com/menu/pizza'
+}
 
 var slack_token = 'DtVFF8hPgNAAj70gex4tBhRk';
 
@@ -47,15 +53,22 @@ var handle_request = function(user, text, callback) {
 
     if(set_restaurant_regex.test(text)) {
         restaurant = set_restaurant_regex.exec(text)[1];
-        return callback(null, {
+
+        var response = {
             "response_type": "in_channel",
-            "text": 'Restaurant set to ' + restaurant,
-            "attachments": [
+            "text": user + ' started order, restaurant set to ' + restaurant,
+        }
+
+        var restaurant_for_map = restaurant.toLowerCase().replace(/\s/,"").replace(/'/,"");
+
+        if(menu_map.hasOwnProperty(restaurant_for_map)) {
+            response['attachments'] = [
                 {
                     "text": 'http://www.kfc.ca/full-menu'
                 }
             ]
-        });
+        }
+        return callback(null, response);
     } else if(place_order_regex.test(text)) {
         if(!restaurant) return callback('Restaurant is not set, you cant place order');
         var order_match = place_order_regex.exec(text);
