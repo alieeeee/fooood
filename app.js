@@ -98,6 +98,9 @@ var handle_request = function(user, text, callback) {
 
         orders[order_item].push(order_detail);
 
+        var response_text = user + ' ordered ' + order_item;
+        if(order_option != 'no option') response_text = response_text + ' with ' + order_option;
+
         return callback(null, {
             "response_type": "in_channel",
             "text": user + ' ordered ' + order_item,
