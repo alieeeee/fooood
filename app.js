@@ -46,10 +46,10 @@ app.post('/order', function (req, res, next) {
 });
 
 var handle_request = function(user, text, callback) {
-    var set_restaurant_regex = /^set restaurant (.+)$/i;
+    var set_restaurant_regex = /^start (.+)$/i;
     var place_order_regex = /^order \[(.+?)\](?: with \[(.+)\])?$/i;
     var cancel_order_regex = /^cancel order \[(.+?)\](?: with \[(.+)\])?$/i;
-    var finished_order_regex = /^finished order$/i;
+    var finished_order_regex = /^finished$/i;
 
     if(set_restaurant_regex.test(text)) {
         restaurant = set_restaurant_regex.exec(text)[1];
@@ -64,7 +64,7 @@ var handle_request = function(user, text, callback) {
         if(menu_map.hasOwnProperty(restaurant_for_map)) {
             response['attachments'] = [
                 {
-                    "text": 'http://www.kfc.ca/full-menu'
+                    "text": menu_map(restaurant_for_map)
                 }
             ]
         }
