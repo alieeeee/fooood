@@ -56,13 +56,12 @@ var handle_request = function(user, text, callback) {
     var set_restaurant_regex = /^start (.+)$/i;
     var place_order_regex = /^order \[(.+?)\](?: with \[(.+)\])?$/i;
     var cancel_order_regex = /^cancel order \[(.+?)\](?: with \[(.+)\])?$/i;
-    var cancel_all_order_regex = /^cancel order \[(.+?)\] all$/i;
     var finished_order_regex = /^finish$/i;
     var help_regex = /^help$/i;
 
     if(set_restaurant_regex.test(text)) {
         if(restaurant) {
-            return callback("There's an ongoing order with " + restaurant +", please finish that order before start another one, " +
+            return ("There's an ongoing order with " + restaurant +", please finish that order before start another one, " +
                     "To finish current order, type '/order finish'");
         }
         restaurant = set_restaurant_regex.exec(text)[1];
@@ -85,26 +84,22 @@ var handle_request = function(user, text, callback) {
     } else if(place_order_regex.test(text)) {
         if(!restaurant) return callback('Restaurant is not set, you cant place order');
         var order_match = place_order_regex.exec(text);
-        var order_item = order_match[1].trim();
-        var order_item = order_match[2];
-        if(!order_option) order_option = 'no option';
-        else order_option = order_option.trim();
+        var order_item = order_match[1];
 
         if(!orders.hasOwnProperty(order_item)) orders[order_item] = [];
 
         var order_detail = {
             'orderer': user,
-            'option': order_option
         }
+
+        order_detail['option'] = order_match[2];
+        if(!order_detail['option']) order_detail['option'] = 'no option';
 
         orders[order_item].push(order_detail);
 
-        var response_text = user + ' ordered ' + order_item;
-        if(order_option != 'no option') response_text = response_text + ' with ' + order_option;
-
         return callback(null, {
             "response_type": "in_channel",
-            "text": response_text,
+            "text": user + ' ordered ' + order_item,
         });
     } else if(finished_order_regex.test(text)) {
         if(!restaurant) return ('No ongoing order');
@@ -114,7 +109,6 @@ var handle_request = function(user, text, callback) {
             restaurant = null;
             orders = {};
             return callback(null, {
-                "response_type": "in_channel",
                 "text": 'order finished!',
                 "attachments": [
                     {
@@ -126,10 +120,9 @@ var handle_request = function(user, text, callback) {
     } else if(cancel_order_regex.test(text)) {
 
         var order_match = cancel_order_regex.exec(text);
-        var order_item = order_match[1].trim();
+        var order_item = order_match[1];
         var order_option = order_match[2];
         if(!order_option) order_option = 'no option';
-        else order_option = order_option.trim();
 
         var count = 0;
         if(!orders[order_item]) {
@@ -160,22 +153,10 @@ var handle_request = function(user, text, callback) {
         })
     } else if (help_regex) {
         return callback(null, {
-            'text': 'hint',
-            "attachments": [
-                {
-                    "text": usage_hint
-                }
-            ]
+            'text': usage_hint;
         });
     } else {
-        return callback(null, {
-            'text': 'Unrecognized command',
-            "attachments": [
-                {
-                    "text": usage_hint
-                }
-            ]
-        });
+        return callback(unrecognized_command_error_msg);
     }
 }
 
