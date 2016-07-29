@@ -56,6 +56,7 @@ var handle_request = function(user, text, callback) {
     var place_order_regex = /^order \[(.+?)\](?: with \[(.+)\])?$/i;
     var cancel_order_regex = /^cancel order \[(.+?)\](?: with \[(.+)\])?$/i;
     var finished_order_regex = /^finish$/i;
+    var view_my_order_regex = /^view my order$/i;
 
     if(set_restaurant_regex.test(text)) {
         if(restaurant) {
@@ -149,6 +150,8 @@ var handle_request = function(user, text, callback) {
                 })
             }
         })
+    } else if(view_my_order_regex.test(text)){
+        return view_my_order(user, callback)
     }else {
         return callback(unrecognized_command_error_msg);
     }
@@ -176,4 +179,25 @@ var print_order = function(callback) {
         print_text += '\n-----------------------------\n'
         callback(null, print_text);
     })
+}
+
+var view_my_order = function(user, callback) {
+    var print_text = '';
+    print_text += '-----------------------------\n';
+
+    var keys = Object.keys(orders);
+    console.log(keys.length);
+
+    for (var i = 0; i< keys.length ; i++) {
+        var key = keys[i];
+
+        for(var i2 = 0 ; i2 < orders[key].length ; i2++){
+
+            if(orders[key][i2].orderer === user) {
+                print_text += key + ': ' + orders[key][i2].option +'\n';
+            }
+        }
+    }
+
+    callback(null, print_text);
 }
