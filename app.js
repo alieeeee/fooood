@@ -226,7 +226,7 @@ var view_my_order = function(user, callback) {
     async.forEachSeries(Object.keys(orders), function(order_item, item_cb){
         for(var i = 0 ; i <= orders[order_item].length ; i++){
             if(orders[order_item][i].orderer === user) {
-                prtin_text += order_item + ': ' + 'orders[order_item][i]\n';
+                print += order_item + ': ' + 'orders[order_item][i]\n';
             }
         }
     }, function(err){
