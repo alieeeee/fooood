@@ -50,6 +50,11 @@ var handle_request = function(user, text, callback) {
         return callback(null, {
             "response_type": "in_channel",
             "text": 'Restaurant set to ' + restaurant,
+            "attachments": [
+                {
+                    "text": 'http://www.kfc.ca/full-menu'
+                }
+            ]
         });
     } else if(place_order_regex.test(text)) {
         if(!restaurant) return callback('Restaurant is not set, you cant place order');
@@ -82,7 +87,7 @@ var handle_request = function(user, text, callback) {
                 "text": 'order finished!',
                 "attachments": [
                     {
-                        "text": 'http://www.kfc.ca/full-menu'
+                        "text": text
                     }
                 ]
             });
