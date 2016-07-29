@@ -68,5 +68,7 @@ var handle_request = function(user, text, callback) {
         return callback(null, {
             "text": 'order finished!',
         })
+    } else {
+        return callbck('unrecognized command');
     }
 }
