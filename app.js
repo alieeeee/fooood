@@ -49,7 +49,7 @@ app.post('/order', function (req, res, next) {
 
 var handle_request = function(user, text, callback) {
     var set_restaurant_regex = /^set restaurant (.+)$/i;
-    var place_order_regex = /^order \[(.+)\](?: with \[(.+)\])?$/i;
+    var place_order_regex = /^order \[(.+?)\](?: with \[(.+)\])?$/i;
     var finished_order_regex = /^finished order$/i;
 
     if(set_restaurant_regex.test(text)) {
@@ -61,7 +61,7 @@ var handle_request = function(user, text, callback) {
         if(!restaurant) return callback('Restaurant is not set, you cant place order');
         var order_item = place_order_regex.exec(text)[1];
         return callback(null, {
-            "text": user + ' ordered' + order_item,
+            "text": 'ordered ' + order_item,
         });
     } else if(finished_order_regex.test(text)) {
         restaurant = null;
@@ -69,6 +69,6 @@ var handle_request = function(user, text, callback) {
             "text": 'order finished!',
         })
     } else {
-        return callbck('unrecognized command');
+        return callback('unrecognized command');
     }
 }
