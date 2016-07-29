@@ -127,7 +127,6 @@ var handle_request = function(user, text, callback) {
     } else if(cancel_order_regex.test(text)) {
         var order_match = cancel_order_regex.exec(text);
         var order_item = order_match[1].trim();
-        var order_option = order_match[2].trim();
         if(!order_option) order_option = 'no option';
         else order_option = order_option.trim();
 
@@ -223,21 +222,16 @@ var view_my_order = function(user, callback) {
     var print_text = '';
     print_text += '-----------------------------\n';
 
-    async.forEachSeries(Object.keys(orders), function(order_item, item_cb){
-        for(var i = 0 ; i <= orders[order_item].length ; i++){
-            if(orders[order_item][i].orderer === user) {
-                print_text += order_item + ': ' + 'orders[order_item][i]\n';
+    for (var i = 0; i< keys.length ; i++) {
+        var key = keys[i];
+
+        for(var i2 = 0 ; i2 < orders[key].length ; i2++){
+
+            if(orders[key][i2].orderer === user) {
+                print_text += key + ': ' + orders[key][i2].option +'\n';
             }
         }
-    }, function(err){
-        if(err) return callback(err);
-        return callback(null, {
-            'text': "Your order with " + restaurant,
-            "attachments": [
-                {
-                    "text": print_text
-                }
-            ]
-        })
-    })
+    }
+
+    callback(null, print_text);
 }
