@@ -59,6 +59,7 @@ var handle_request = function(user, text, callback) {
     var cancel_all_order_regex = /^cancel order \[(.+?)\] all$/i;
     var finished_order_regex = /^finish$/i;
     var help_regex = /^help$/i;
+    var view_my_order_regex = /^view my order$/i;
 
     if(set_restaurant_regex.test(text)) {
         if(restaurant) {
@@ -136,7 +137,7 @@ var handle_request = function(user, text, callback) {
         var order_item = order_match[1].trim();
 
         cancel_order(user, order_item, null, callback);
-    } else if (help_regex) {
+    } else if (help_regex.test(text)) {
         return callback(null, {
             'text': 'hint',
             "attachments": [
@@ -145,6 +146,8 @@ var handle_request = function(user, text, callback) {
                 }
             ]
         });
+    } else if (view_my_order_regex.test(text)) {
+        view_my_order(user, callback);
     } else {
         return callback(null, {
             'text': 'Unrecognized command',
@@ -215,3 +218,26 @@ var cancel_order = function(user, order_item, order_option, callback) {
         };
     });
 };
+
+var view_my_order = function(user, callback) {
+    var print_text = '';
+    print_text += '-----------------------------\n';
+
+    async.forEachSeries(Object.keys(orders), function(order_item, item_cb){
+        for(var i = 0 ; i <= orders[order_item].length ; i++){
+            if(orders[order_item][i].orderer === user) {
+                prtin_text += order_item + ': ' + 'orders[order_item][i]\n';
+            }
+        }
+    }, function(err){
+        if(err) return callback(err);
+        return callback(null, {
+            'text': "Your order with " + restaurant,
+            "attachments": [
+                {
+                    "text": print_text
+                }
+            ]
+        })
+    })
+}
