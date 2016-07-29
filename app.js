@@ -110,6 +110,7 @@ var handle_request = function(user, text, callback) {
             restaurant = null;
             orders = {};
             return callback(null, {
+                "response_type": "in_channel",
                 "text": 'order finished!',
                 "attachments": [
                     {
@@ -155,10 +156,22 @@ var handle_request = function(user, text, callback) {
         })
     } else if (help_regex) {
         return callback(null, {
-            'text': usage_hint
+            'text': 'hint',
+            "attachments": [
+                {
+                    "text": usage_hint
+                }
+            ]
         });
     } else {
-        return callback(unrecognized_command_error_msg);
+        return callback(null, {
+            'text': 'Unrecognized command',
+            "attachments": [
+                {
+                    "text": usage_hint
+                }
+            ]
+        });
     }
 }
 
