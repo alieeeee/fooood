@@ -61,7 +61,7 @@ var handle_request = function(user, text, callback) {
 
     if(set_restaurant_regex.test(text)) {
         if(restaurant) {
-            return ("There's an ongoing order with " + restaurant +", please finish that order before start another one, " +
+            return callback("There's an ongoing order with " + restaurant +", please finish that order before start another one, " +
                     "To finish current order, type '/order finish'");
         }
         restaurant = set_restaurant_regex.exec(text)[1];
