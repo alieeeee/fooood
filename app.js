@@ -119,6 +119,7 @@ var print_order = function(callback) {
     }, function(err){
         if(err) return callback('Failed to print order');
         orders = {};
+        print_text += '-----------------------------\n'
         callback(null, print_text);
     })
 }
