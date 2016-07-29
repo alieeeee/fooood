@@ -34,7 +34,7 @@ app.post('/order', function (req, res, next) {
   }
 
   if (userName !== 'slackbot') {
-      return res.status(200).json(req);
+      return res.status(200).json(botPayload);
   } else {
       return res.status(200).end();
   }
