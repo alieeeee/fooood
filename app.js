@@ -200,7 +200,7 @@ var cancel_order = function(user, order_item, order_option, callback) {
     }, function(err){
         if(err) return callback('Failed to cancel the order');
         else if(canceled_order.length === orders[order_item].length) {
-            return ('Failed to locate the order');
+            return callback('Failed to locate the order');
         }
         else {
             if(!canceled_order.length) delete orders[order_item]
