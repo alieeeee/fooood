@@ -64,7 +64,7 @@ var handle_request = function(user, text, callback) {
         if(menu_map.hasOwnProperty(restaurant_for_map)) {
             response['attachments'] = [
                 {
-                    "text": menu_map(restaurant_for_map)
+                    "text": menu_map[restaurant_for_map]
                 }
             ]
         }
