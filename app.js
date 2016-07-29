@@ -61,7 +61,7 @@ var handle_request = function(user, text, callback) {
         if(!restaurant) return callback('Restaurant is not set, you cant place order');
         var order_item = place_order_regex.exec(text)[1];
         return callback(null, {
-            "text": 'ordered ' + order_item,
+            "text": user + ' ordered ' + order_item,
         });
     } else if(finished_order_regex.test(text)) {
         restaurant = null;
