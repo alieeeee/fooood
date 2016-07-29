@@ -202,5 +202,12 @@ var view_my_order = function(user, callback) {
 
     print_text += '\n-----------------------------\n';
 
-    callback(null, print_text);
+    callback(null, {
+            "text": 'your order with ' + restaurant,
+            "attachments": [
+                {
+                    "text": print_text
+                }
+            ]
+    });
 }
