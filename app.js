@@ -83,8 +83,16 @@ var handle_request = function(user, text, callback) {
         });
     } else if(finished_order_regex.test(text)) {
         restaurant = null;
-        return callback(null, {
-            "text": 'order finished!',
+        print_order(function(err, text){
+            if(err) return callback(err);
+            return callback(null, {
+                "text": 'order finished!',
+                "attachments": [
+                    {
+                        "text": text
+                    }
+                ]
+            });
         })
     } else {
         return callback('unrecognized command');
