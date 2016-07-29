@@ -1,10 +1,12 @@
 var express = require('express');
 var bodyParser = require('body-parser');
+var async = require('async');
+var _ = require('underscore');
 
 var app = express();
 var port = process.env.PORT || 1337;
 
-var order = {};
+var orders = {};
 var restaurant = null;
 
 var slack_token = 'DtVFF8hPgNAAj70gex4tBhRk';
@@ -55,12 +57,28 @@ var handle_request = function(user, text, callback) {
     if(set_restaurant_regex.test(text)) {
         restaurant = set_restaurant_regex.exec(text)[1];
         return callback(null, {
+            "response_type": "in_channel",
             "text": 'Restaurant set to ' + restaurant,
         });
     } else if(place_order_regex.test(text)) {
         if(!restaurant) return callback('Restaurant is not set, you cant place order');
-        var order_item = place_order_regex.exec(text)[1];
+        var order_match = place_order_regex.exec(text);
+        var order_item = order_match[1];
+
+        if(!orders.hasOwnProperty(order_item)) orders[order_item] = [];
+
+        var order_detail = {
+            'orderer': user,
+        }
+
+        order_detail['option'] = order_match.length >= 3 ? order_match[2] : 'no options';
+
+        orders[order_item].push(order_detail);
+
+        console.log(orders);
+
         return callback(null, {
+            "response_type": "in_channel",
             "text": user + ' ordered ' + order_item,
         });
     } else if(finished_order_regex.test(text)) {
@@ -71,4 +89,28 @@ var handle_request = function(user, text, callback) {
     } else {
         return callback('unrecognized command');
     }
+}
+
+var print_order = function(callback) {
+    var print_text = "";
+    async.forEachSeries(Object.keys(orders), function(order_key, order_cb){
+        print_text += '-----------------------------\n';
+        print_text += order_key + ': in total ' + orders[order_key].length + '\n\n';
+
+        var grouped_by_option = _.groupBy(orders[order_key], function(order){
+            return order.option;
+        });
+
+        async.forEachSeries(grouped_by_option, function(option, group_cb){
+            print_text += option[0]['option'] + ': ' + option.length;
+            return group_cb();
+        }, function(err){
+            if(err) return callback(err);
+            return order_cb();
+        });
+    }, function(err){
+        if(err) return callback('Failed to print order');
+        orders = {};
+        callback(null, print_text);
+    })
 }

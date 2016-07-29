@@ -8,6 +8,8 @@
   "dependencies": {
     "express": "^4.x.x",
     "body-parser": "^1.x.x",
-    "request": "2.56.x"
+    "request": "2.56.x",
+    "async": "^2.x.x",
+    "underscore": "x.x.x"
   }
 }
