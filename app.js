@@ -23,7 +23,6 @@ app.listen(port, function () {
 
 app.post('/order', function (req, res, next) {
     if (! req.body.token || req.body.token.valueOf() != slack_token.valueOf()) {
-        console.log('Illegal request!');
         return res.sendStatus(403);
     }
 
@@ -38,20 +37,12 @@ app.post('/order', function (req, res, next) {
             return res.status(200).json(botPayload);
         }
     })
-    /*var botPayload = {
-        "text": req.body.text,
-    }
-
-    if (userName !== 'slackbot') {
-        return res.status(200).json(botPayload);
-    } else {
-        return res.status(200).end();
-    }*/
 });
 
 var handle_request = function(user, text, callback) {
     var set_restaurant_regex = /^set restaurant (.+)$/i;
     var place_order_regex = /^order \[(.+?)\](?: with \[(.+)\])?$/i;
+    var cancel_order_regex = /^cancel order \[(.+?)\](?: with \[(.+)\])?$/i;
     var finished_order_regex = /^finished order$/i;
 
     if(set_restaurant_regex.test(text)) {
@@ -71,20 +62,22 @@ var handle_request = function(user, text, callback) {
             'orderer': user,
         }
 
-        order_detail['option'] = order_match.length >= 3 ? order_match[2] : 'no options';
+        order_detail['option'] = order_match[2];
+        if(!order_detail['option']) order_detail['option'] = 'no option';
 
         orders[order_item].push(order_detail);
-
-        console.log(orders);
 
         return callback(null, {
             "response_type": "in_channel",
             "text": user + ' ordered ' + order_item,
         });
     } else if(finished_order_regex.test(text)) {
-        restaurant = null;
+        if(!restaurant) return ('No ongoing order');
+
         print_order(function(err, text){
             if(err) return callback(err);
+            restaurant = null;
+            orders = {};
             return callback(null, {
                 "text": 'order finished!',
                 "attachments": [
@@ -94,13 +87,47 @@ var handle_request = function(user, text, callback) {
                 ]
             });
         })
-    } else {
+    } else if(cancel_order_regex.test(text)) {
+
+        var order_match = cancel_order_regex.exec(text);
+        var order_item = order_match[1];
+        var order_option = order_match[2];
+        if(!order_option) order_option = 'no option';
+
+        var count = 0;
+        if(!orders[order_item]) {
+            return callback('No order found');
+        }
+
+        var canceled_order = []
+
+        async.forEachSeries(orders[order_item], function(order, cancel_cb){
+            if(order.orderer != user || order.option != order_option) {
+                canceled_order.push(order)
+            }
+            return cancel_cb();
+        }, function(err){
+            if(err) return callback('Failed to cancel the order');
+            else if(canceled_order.length === orders[order_item].length) {
+                return ('Failed to locate the order');
+            }
+            else {
+                if(!canceled_order.length) delete orders[order_item]
+                else orders[order_item] = canceled_order;
+                return callback(null, {
+                    "response_type": "in_channel",
+                    'text': 'order for ' + order_item + ' with ' + order_option +
+                            ' by ' + user + 'has been canceled.'
+                })
+            }
+        })
+    }else {
         return callback('unrecognized command');
     }
 }
 
 var print_order = function(callback) {
-    var print_text = "";
+    var print_text = "Orders for " + restaurant;
     async.forEachSeries(Object.keys(orders), function(order_key, order_cb){
         print_text += '-----------------------------\n';
         print_text += order_key + ': in total ' + orders[order_key].length + '\n\n';
@@ -118,8 +145,7 @@ var print_order = function(callback) {
         });
     }, function(err){
         if(err) return callback('Failed to print order');
-        orders = {};
-        print_text += '-----------------------------\n'
+        print_text += '\n-----------------------------\n'
         callback(null, print_text);
     })
 }
