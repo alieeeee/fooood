@@ -86,6 +86,7 @@ var handle_request = function(user, text, callback) {
         if(!restaurant) return callback('Restaurant is not set, you cant place order');
         var order_match = place_order_regex.exec(text);
         var order_item = order_match[1].trim();
+        var order_item = order_match[2];
         if(!order_option) order_option = 'no option';
         else order_option = order_option.trim();
 
@@ -126,6 +127,7 @@ var handle_request = function(user, text, callback) {
 
         var order_match = cancel_order_regex.exec(text);
         var order_item = order_match[1].trim();
+        var order_option = order_match[2];
         if(!order_option) order_option = 'no option';
         else order_option = order_option.trim();
 
