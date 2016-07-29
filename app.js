@@ -82,7 +82,7 @@ var handle_request = function(user, text, callback) {
                 "text": 'order finished!',
                 "attachments": [
                     {
-                        "text": text
+                        "text": 'http://www.kfc.ca/full-menu'
                     }
                 ]
             });
