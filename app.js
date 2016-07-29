@@ -30,7 +30,7 @@ app.post('/order', function (req, res, next) {
 
   var userName = req.body.user_name;
   var botPayload = {
-      "text": text,
+      "text": req.body.stringify(),
   }
 
   if (userName !== 'slackbot') {
