@@ -203,10 +203,14 @@ var cancel_order = function(user, order_item, order_option, callback) {
         else {
             if(!canceled_order.length) delete orders[order_item]
             else orders[order_item] = canceled_order;
+
+            var response_text = 'order for ' + order_item + ' with ' + order_option +
+                                ' by ' + user + ' has been canceled.';
+            if(!order_option) response_text = 'all orders for ' + order_item + ' by ' + user + ' has been canceled.';
+
             return callback(null, {
                 "response_type": "in_channel",
-                'text': 'order for ' + order_item + ' with ' + order_option +
-                        ' by ' + user + 'has been canceled.'
+                'text': response_text
             });
         };
     });
