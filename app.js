@@ -27,9 +27,9 @@ app.post('/order', function (req, res, next) {
 
     var text = req.body.text;
 
-    var userName = req.body.user_name;
+    var user = req.body.user_name;
 
-    handle_request(req.body.text, function(err, botPayload){
+    handle_request(user, text, function(err, botPayload){
         if(err) {
             return res.status(200).json({ text: 'err: ' + err});
         } else {
@@ -47,7 +47,7 @@ app.post('/order', function (req, res, next) {
     }*/
 });
 
-var handle_request = function(text, callback) {
+var handle_request = function(user, text, callback) {
     var set_restaurant_regex = /^set restaurant (.+)$/i;
     var place_order_regex = /^order \[(.+)\](?: with \[(.+)\])?$/i;
     var finished_order_regex = /^finished order$/i;
@@ -61,7 +61,7 @@ var handle_request = function(text, callback) {
         if(!restaurant) return callback('Restaurant is not set, you cant place order');
         var order_item = place_order_regex.exec(text)[1];
         return callback(null, {
-            "text": req.body.user_name + ' ordered' + oreder_item,
+            "text": user + ' ordered' + oreder_item,
         });
     } else if(finished_order_regex.test(text)) {
         restaurant = null;
