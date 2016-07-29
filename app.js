@@ -15,12 +15,11 @@ var menu_map = {
     "mamaspizza": 'http://mammaspizza.com/menu/pizza'
 }
 
-var unrecognized_command_error_msg = 'Unrecognized command. \n\n' + usage_hint;
-
-var usage_hint = "to start order, type '/order start $restaurant' \n" +
-                "to place an order, type '/order order [$item]' or '/order order [$item] with [$option]'\n" +
-                "to cancel an order, type '/order cancel order [$item]' or '/order cancel order [$item] with [$option]'\n" +
-                "to finish order, type '/order finish'";
+var unrecognized_command_error_msg = 'Unrecognized command. \n\n' +
+                                     "to start order, type '/order start $restaurant' \n" +
+                                     "to place an order, type '/order order [$item]' or '/order order [$item] with [$option]'\n" +
+                                     "to cancel an order, type '/order cancel order [$item]' or '/order cancel order [$item] with [$option]'\n" +
+                                     "to finish order, type '/order finish'";
 
 var slack_token = 'DtVFF8hPgNAAj70gex4tBhRk';
 
@@ -57,7 +56,6 @@ var handle_request = function(user, text, callback) {
     var place_order_regex = /^order \[(.+?)\](?: with \[(.+)\])?$/i;
     var cancel_order_regex = /^cancel order \[(.+?)\](?: with \[(.+)\])?$/i;
     var finished_order_regex = /^finish$/i;
-    var help_regex = /^help$/i;
 
     if(set_restaurant_regex.test(text)) {
         if(restaurant) {
@@ -151,11 +149,7 @@ var handle_request = function(user, text, callback) {
                 })
             }
         })
-    } else if (help_regex) {
-        return callback(null, {
-            'text': usage_hint;
-        });
-    } else {
+    }else {
         return callback(unrecognized_command_error_msg);
     }
 }
