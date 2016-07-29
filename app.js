@@ -195,7 +195,7 @@ var cancel_order = function(user, order_item, order_option, callback) {
     async.forEachSeries(orders[order_item], function(order, cancel_cb){
         console.log()
         if(order.orderer != user || (order.option != order_option)) {
-            if(order_option) canceled_order.push(order)
+            canceled_order.push(order)
         }
         return cancel_cb();
     }, function(err){
