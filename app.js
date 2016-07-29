@@ -84,16 +84,17 @@ var handle_request = function(user, text, callback) {
     } else if(place_order_regex.test(text)) {
         if(!restaurant) return callback('Restaurant is not set, you cant place order');
         var order_match = place_order_regex.exec(text);
-        var order_item = order_match[1];
+        var order_item = order_match[1].trim();
+        var order_option = order_match[2].trim();
+        if(!order_option) order_option = 'no option';
+        else order_option = order_option.trim();
 
         if(!orders.hasOwnProperty(order_item)) orders[order_item] = [];
 
         var order_detail = {
             'orderer': user,
+            'option': order_option
         }
-
-        order_detail['option'] = order_match[2];
-        if(!order_detail['option']) order_detail['option'] = 'no option';
 
         orders[order_item].push(order_detail);
 
@@ -120,9 +121,10 @@ var handle_request = function(user, text, callback) {
     } else if(cancel_order_regex.test(text)) {
 
         var order_match = cancel_order_regex.exec(text);
-        var order_item = order_match[1];
-        var order_option = order_match[2];
+        var order_item = order_match[1].trim();
+        var order_option = order_match[2].trim();
         if(!order_option) order_option = 'no option';
+        else order_option = order_option.trim();
 
         var count = 0;
         if(!orders[order_item]) {
