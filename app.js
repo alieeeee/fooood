@@ -15,6 +15,12 @@ var menu_map = {
     "mamaspizza": 'http://mammaspizza.com/menu/pizza'
 }
 
+var unrecognized_command_error_msg = 'Unrecognized command. \n\n' +
+                                     "to start order, type '/order start $restaurant' \n" +
+                                     "to place an order, type '/order order [$item]' or '/order order [$item] with [$option]'\n" +
+                                     "to cancel an order, type '/order cancel order [$item]' or '/order cancel order [$item] with [$option]'\n" +
+                                     "to finish order, type '/order finish'";
+
 var slack_token = 'DtVFF8hPgNAAj70gex4tBhRk';
 
 // body parser middleware
@@ -49,9 +55,13 @@ var handle_request = function(user, text, callback) {
     var set_restaurant_regex = /^start (.+)$/i;
     var place_order_regex = /^order \[(.+?)\](?: with \[(.+)\])?$/i;
     var cancel_order_regex = /^cancel order \[(.+?)\](?: with \[(.+)\])?$/i;
-    var finished_order_regex = /^finished$/i;
+    var finished_order_regex = /^finish$/i;
 
     if(set_restaurant_regex.test(text)) {
+        if(restaurant) {
+            return ("There's an ongoing order with " + restaurant +", please finish that order before start another one, " +
+                    "To finish current order, type '/order finish'");
+        }
         restaurant = set_restaurant_regex.exec(text)[1];
 
         var response = {
@@ -140,7 +150,7 @@ var handle_request = function(user, text, callback) {
             }
         })
     }else {
-        return callback('unrecognized command');
+        return callback(unrecognized_command_error_msg);
     }
 }
 
