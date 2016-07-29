@@ -21,16 +21,16 @@ app.listen(port, function () {
 
 app.post('/order', function (req, res, next) {
 
-  /*if (! req.query.token || req.query.token.valueOf() != slack_token.valueOf()) {
+  if (! req.body.token || req.body.token.valueOf() != slack_token.valueOf()) {
       console.log('Illegal request!');
       return res.sendStatus(403)
-  }*/
+  }
 
   var text = req.query.text;
 
   var userName = req.body.user_name;
   var botPayload = {
-      "text": req.body.stringify(),
+      "text": req.body.text,
   }
 
   if (userName !== 'slackbot') {
