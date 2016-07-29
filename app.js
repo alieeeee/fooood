@@ -103,7 +103,7 @@ var handle_request = function(user, text, callback) {
 
         return callback(null, {
             "response_type": "in_channel",
-            "text": user + ' ordered ' + order_item,
+            "text": response_text,
         });
     } else if(finished_order_regex.test(text)) {
         if(!restaurant) return ('No ongoing order');
