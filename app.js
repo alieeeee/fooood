@@ -56,6 +56,7 @@ var handle_request = function(user, text, callback) {
     var set_restaurant_regex = /^start (.+)$/i;
     var place_order_regex = /^order \[(.+?)\](?: with \[(.+)\])?$/i;
     var cancel_order_regex = /^cancel order \[(.+?)\](?: with \[(.+)\])?$/i;
+    var cancel_all_order_regex = /^cancel order \[(.+?)\] all$/i;
     var finished_order_regex = /^finish$/i;
     var help_regex = /^help$/i;
 
@@ -123,40 +124,18 @@ var handle_request = function(user, text, callback) {
             });
         })
     } else if(cancel_order_regex.test(text)) {
-
         var order_match = cancel_order_regex.exec(text);
         var order_item = order_match[1].trim();
         var order_option = order_match[2].trim();
         if(!order_option) order_option = 'no option';
         else order_option = order_option.trim();
 
-        var count = 0;
-        if(!orders[order_item]) {
-            return callback('No order found');
-        }
+        cancel_order(user, order_item, order_option, callback);
+    } else if (cancel_all_order_regex.test(text)) {
+        var order_match = cancel_all_order_regex.exec(text);
+        var order_item = order_match[1].trim();
 
-        var canceled_order = []
-
-        async.forEachSeries(orders[order_item], function(order, cancel_cb){
-            if(order.orderer != user || order.option != order_option) {
-                canceled_order.push(order)
-            }
-            return cancel_cb();
-        }, function(err){
-            if(err) return callback('Failed to cancel the order');
-            else if(canceled_order.length === orders[order_item].length) {
-                return ('Failed to locate the order');
-            }
-            else {
-                if(!canceled_order.length) delete orders[order_item]
-                else orders[order_item] = canceled_order;
-                return callback(null, {
-                    "response_type": "in_channel",
-                    'text': 'order for ' + order_item + ' with ' + order_option +
-                            ' by ' + user + 'has been canceled.'
-                })
-            }
-        })
+        cancel_order(user, order_item, null, callback);
     } else if (help_regex) {
         return callback(null, {
             'text': 'hint',
@@ -201,3 +180,34 @@ var print_order = function(callback) {
         callback(null, print_text);
     })
 }
+
+var cancel_order = function(user, order_item, order_option, callback) {
+    var count = 0;
+
+    if(!orders[order_item]) {
+        return callback('No order found');
+    }
+
+    var canceled_order = []
+
+    async.forEachSeries(orders[order_item], function(order, cancel_cb){
+        if(order.orderer != user || (order.option != order_option && order_option)) {
+            canceled_order.push(order)
+        }
+        return cancel_cb();
+    }, function(err){
+        if(err) return callback('Failed to cancel the order');
+        else if(canceled_order.length === orders[order_item].length) {
+            return ('Failed to locate the order');
+        }
+        else {
+            if(!canceled_order.length) delete orders[order_item]
+            else orders[order_item] = canceled_order;
+            return callback(null, {
+                "response_type": "in_channel",
+                'text': 'order for ' + order_item + ' with ' + order_option +
+                        ' by ' + user + 'has been canceled.'
+            });
+        };
+    });
+};
