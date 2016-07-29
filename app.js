@@ -158,7 +158,7 @@ var handle_request = function(user, text, callback) {
 }
 
 var print_order = function(callback) {
-    var print_text = "Orders for " + restaurant;
+    var print_text = "Orders for " + restaurant + "\n";
     async.forEachSeries(Object.keys(orders), function(order_key, order_cb){
         print_text += '-----------------------------\n';
         print_text += order_key + ': in total ' + orders[order_key].length + '\n\n';
@@ -198,6 +198,9 @@ var view_my_order = function(user, callback) {
             }
         }
     }
+
+
+    print_text += '\n-----------------------------\n';
 
     callback(null, print_text);
 }
