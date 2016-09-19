@@ -57,6 +57,7 @@ var handle_request = function(user, text, callback) {
     var cancel_order_regex = /^cancel order \[(.+?)\](?: with \[(.+)\])?$/i;
     var finished_order_regex = /^finish$/i;
     var view_my_order_regex = /^view my order$/i;
+    var view_all_orders = /^view all orders$/i;
 
     if(set_restaurant_regex.test(text)) {
         if(restaurant) {
